@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notes de Frais</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+</head>
+<body>
+  <main class="app">
+    <header class="app-header">
+      <h1>Notes de Frais</h1>
+      <p>Photographiez un justificatif, vérifiez les informations extraites, envoyez-les à la comptabilité.</p>
+    </header>
+
+    <section class="card">
+      <form id="upload-form"
+            hx-post="/api/analyze"
+            hx-encoding="multipart/form-data"
+            hx-target="#form-container"
+            hx-swap="innerHTML"
+            hx-indicator="#loader">
+        <label class="dropzone" id="dropzone">
+          <input type="file" id="file-input" name="file" accept="image/*" capture="environment" hidden>
+          <div class="dropzone-content" id="dropzone-content">
+            <span class="dropzone-icon">📷</span>
+            <span class="dropzone-text">Prendre une photo / Choisir un fichier</span>
+          </div>
+          <img id="preview" class="preview" alt="Aperçu du justificatif" hidden>
+        </label>
+
+        <div class="actions">
+          <button type="submit" id="analyze-btn" disabled>Analyser le ticket</button>
+          <button type="button" id="reset-btn" class="secondary">Recommencer</button>
+        </div>
+      </form>
+
+      <p id="loader" class="loader htmx-indicator">Analyse en cours…</p>
+    </section>
+
+    <section id="form-container" class="card form-card"></section>
+    <section id="confirmation-container"></section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
