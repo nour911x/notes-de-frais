@@ -1,17 +1,17 @@
-import io
 import os
+import base64
 from pathlib import Path
 from datetime import datetime
 
 import gspread
+import requests
 from dotenv import load_dotenv
 from google.oauth2.service_account import Credentials
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseUpload
 
 BASE_DIR = Path(__file__).parent
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 WORKSHEET_NAME = "Notes de frais"
+IMGBB_UPLOAD_URL = "https://api.imgbb.com/1/upload"
 
 load_dotenv()
 
@@ -22,15 +22,17 @@ class GoogleSheetsClient:
         self.credentials = Credentials.from_service_account_file(str(creds_path), scopes=SCOPES)
         self.gc = gspread.authorize(self.credentials)
         self.sheet = self.gc.open_by_key(os.getenv("GOOGLE_SHEET_ID")).worksheet(WORKSHEET_NAME)
-        self.drive = build("drive", "v3", credentials=self.credentials)
 
-    def upload_image(self, image_bytes: bytes, media_type: str = "image/jpeg") -> str:
-        name = f"note-de-frais-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
-        media = MediaIoBaseUpload(io.BytesIO(image_bytes), mimetype=media_type)
-        file = self.drive.files().create(body={"name": name}, media_body=media, fields="id").execute()
-        file_id = file["id"]
-        self.drive.permissions().create(fileId=file_id, body={"role": "reader", "type": "anyone"}).execute()
-        return f"https://drive.google.com/uc?export=view&id={file_id}"
+    @staticmethod
+    def upload_image(image_bytes: bytes, media_type: str = "image/jpeg") -> str:
+        encoded = base64.b64encode(image_bytes).decode("utf-8")
+        response = requests.post(
+            IMGBB_UPLOAD_URL,
+            data={"key": os.getenv("IMGBB_API_KEY"), "image": encoded},
+            timeout=30,
+        )
+        response.raise_for_status()
+        return response.json()["data"]["url"]
 
     def append_expense(self, data: dict, image_url: str = None) -> None:
         row = [
