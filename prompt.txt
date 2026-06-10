@@ -1,0 +1,20 @@
+Analyse cette image de note de frais et retourne UNIQUEMENT un objet JSON respectant exactement la structure suivante :
+
+{
+  "type_document": "restaurant | transport | hotel | autre",
+  "fournisseur": "nom du commerce ou de la compagnie (ex: SNCF, Bistrot Paul, Ibis), ou null",
+  "date": "date de la dépense au format JJ/MM/AAAA, ou null",
+  "montant_ttc": nombre décimal du montant total TTC (ex: 24.90), ou null,
+  "tva": nombre décimal du montant de TVA si lisible, sinon null,
+  "devise": "code de la devise (EUR par défaut)",
+  "description": "courte description libre du motif de la dépense",
+  "confiance": "haute | moyen | basse"
+}
+
+Contraintes :
+- type_document doit valoir exactement l'une de ces valeurs : "restaurant", "transport", "hotel", "autre".
+- montant_ttc et tva sont des nombres (pas de symbole €, pas de guillemets), avec un point comme séparateur décimal.
+- date au format JJ/MM/AAAA uniquement.
+- Si un champ est illisible ou absent, mets null (sauf devise qui vaut "EUR" par défaut).
+- confiance doit valoir exactement "haute", "moyen" ou "basse".
+- Ne retourne rien d'autre que cet objet JSON.
