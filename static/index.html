@@ -3,15 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Notes de Frais</title>
+  <title>Notes de Frais · Assistant IA</title>
   <link rel="stylesheet" href="/static/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/htmx.org@1.9.12"></script>
 </head>
 <body>
   <main class="app">
     <header class="app-header">
       <h1>Notes de Frais</h1>
-      <p>Photographiez un justificatif, vérifiez les informations extraites, envoyez-les à la comptabilité.</p>
+      <p class="subtitle">Photographiez un justificatif, vérifiez les informations extraites, envoyez-les à la comptabilité en un clic.</p>
     </header>
 
     <section class="card">
@@ -26,21 +29,29 @@
           <div class="dropzone-content" id="dropzone-content">
             <span class="dropzone-icon">📷</span>
             <span class="dropzone-text">Prendre une photo / Choisir un fichier</span>
+            <span class="dropzone-hint">JPG · PNG · WEBP · GIF — 10 Mo max</span>
           </div>
           <img id="preview" class="preview" alt="Aperçu du justificatif" hidden>
         </label>
 
         <div class="actions">
-          <button type="submit" id="analyze-btn" disabled>Analyser le ticket</button>
+          <button type="submit" id="analyze-btn" disabled>
+            <span>Analyser le ticket</span>
+          </button>
           <button type="button" id="reset-btn" class="secondary">Recommencer</button>
         </div>
       </form>
 
-      <p id="loader" class="loader htmx-indicator">Analyse en cours…</p>
+      <div id="loader" class="loader htmx-indicator">
+        <span class="spinner"></span>
+        <span>Analyse de votre justificatif…</span>
+      </div>
     </section>
 
     <section id="form-container" class="card form-card"></section>
     <section id="confirmation-container"></section>
+
+    <footer class="app-footer">Backend FastAPI · Frontend HTMX · Données dans Google Sheets</footer>
   </main>
 
   <script src="/static/app.js"></script>

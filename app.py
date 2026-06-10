@@ -14,6 +14,7 @@ MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 Mo
 ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 TYPE_OPTIONS = ("restaurant", "transport", "hotel", "autre")
 CONFIANCE_OPTIONS = ("haute", "moyen", "basse")
+CONFIANCE_CLASS = {"haute": "badge-high", "moyen": "badge-medium", "basse": "badge-low"}
 
 app = FastAPI(title="Gestion des Notes de Frais")
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
@@ -36,13 +37,22 @@ def value_of(data: dict, key: str, default: str = "") -> str:
 
 
 def build_form_fragment(data: dict, image_data: str) -> str:
+    confiance = str(data.get("confiance") or "moyen").lower()
+    badge_class = CONFIANCE_CLASS.get(confiance, "badge-medium")
     return f"""
+<div class="form-header">
+  <img class="receipt-thumb" src="{escape(image_data)}" alt="Justificatif">
+  <div class="form-header-info">
+    <h2>Informations extraites</h2>
+    <span class="badge {badge_class}">Confiance&nbsp;: {escape(confiance)}</span>
+  </div>
+</div>
 <form id="expense-form" hx-post="/api/submit" hx-target="#confirmation-container" hx-swap="innerHTML">
   <input type="hidden" name="image_data" value="{escape(image_data)}">
-  <label>Type de document
+  <label class="full">Type de document
     <select name="type_document">{select_options(TYPE_OPTIONS, data.get("type_document"))}</select>
   </label>
-  <label>Fournisseur
+  <label class="full">Fournisseur
     <input type="text" name="fournisseur" value="{value_of(data, "fournisseur")}">
   </label>
   <label>Date
@@ -57,10 +67,10 @@ def build_form_fragment(data: dict, image_data: str) -> str:
   <label>Devise
     <input type="text" name="devise" value="{value_of(data, "devise", "EUR")}">
   </label>
-  <label>Description
+  <label class="full">Description
     <input type="text" name="description" value="{value_of(data, "description")}">
   </label>
-  <label>Confiance
+  <label class="full">Confiance
     <select name="confiance">{select_options(CONFIANCE_OPTIONS, data.get("confiance"))}</select>
   </label>
   <button type="submit">Envoyer vers le Google Sheet</button>
